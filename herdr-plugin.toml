@@ -1,0 +1,15 @@
+id = "subs"
+name = "Subs"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Show your AI harness subscriptions (Claude, Codex, Pi, OpenCode) in the herdr sidebar"
+platforms = ["macos", "linux"]
+
+[[startup]]
+command = ["python3", "subs.py", "refresh"]
+
+[[actions]]
+id = "refresh"
+title = "Refresh subscriptions"
+contexts = ["workspace"]
+command = ["python3", "subs.py", "refresh"]
