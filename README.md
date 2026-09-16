@@ -7,7 +7,10 @@ you're paying for and what's logged in.
 ```
 subs
   main
-  claude max · codex free · pi 3 providers · opencode go
+  claude max 5h:3% wk:7%
+  codex free mo:46%
+  pi 3 providers
+  opencode go
 ```
 
 ## Install
@@ -26,9 +29,15 @@ rows. Add the token row to `~/.config/herdr/config.toml`:
 rows = [
   ["state_icon", "workspace"],
   ["branch", "git_status"],
-  ["$claude", "$codex", "$pi", "$opencode"],
+  ["$claude"],
+  ["$codex"],
+  ["$pi"],
+  ["$opencode"],
 ]
 ```
+
+One row per harness avoids truncation on narrow sidebars. Put them all on
+one row (`["$claude", "$codex", ...]`) if you prefer compactness.
 
 Then `herdr server reload-config`. Tokens only render where they are
 reported, so the row stays empty on every workspace except `subs`.
@@ -73,14 +82,20 @@ python3 subs.py status         # raw detection JSON
 
 ## Supported harnesses
 
-| Harness  | Detection source                          | Shows                          |
-|----------|-------------------------------------------|--------------------------------|
-| Claude   | `claude auth status`                      | plan (`max`/`pro`/`api-key`)   |
-| Codex    | `~/.codex/auth.json` (ChatGPT JWT claims) | ChatGPT plan + renewal date    |
-| Pi       | `~/.pi/agent/auth.json`                   | configured provider count      |
-| OpenCode | `~/.local/share/opencode/auth.json`       | provider (e.g. `go`) or count  |
+| Harness  | Detection source                                        | Shows                                      |
+|----------|---------------------------------------------------------|--------------------------------------------|
+| Claude   | `claude auth status` + OAuth usage API (Keychain creds) | plan, 5h %, weekly %, reset times          |
+| Codex    | `~/.codex/auth.json` + ChatGPT usage API                | plan, per-window usage %, renewal date     |
+| Pi       | `~/.pi/agent/auth.json`                                 | configured provider count                  |
+| OpenCode | `~/.local/share/opencode/auth.json`                     | provider (e.g. `go`) or count              |
 
-Everything is read locally; nothing leaves your machine.
+Usage windows are labeled by length: `5h`, `day`, `wk`, `mo`.
+
+Everything is read from local credential stores and each vendor's own API.
+Nothing is sent anywhere else. Codex tokens are refreshed exactly the way
+the codex CLI does it (rotated tokens are written back to `auth.json`, so
+your login is never broken). If credentials are expired or unreachable,
+the plugin degrades to plan-only display.
 
 ## Adding a detector
 
